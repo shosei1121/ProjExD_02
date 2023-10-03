@@ -54,7 +54,7 @@ def main():
         pg.K_LEFT: (-5, 0),
         pg.K_RIGHT: (+5, 0),
         }
-    cos_zi = {
+    sample = {
         (0, 5): (pg.transform.flip(kk_imgs[0], True, False), -90),
         (5, 5): (pg.transform.flip(kk_imgs[0], True, False), -45),
         (5, 0): (pg.transform.flip(kk_imgs[0], True, False), 0),
@@ -85,7 +85,7 @@ def main():
         kk_rct.move_ip(total)
         
         # こうかとんの向きを変える
-        for kk, mm in cos_zi.items():
+        for kk, mm in sample.items():
             if total[0] == kk[0] and total[1] == kk[1]:
                 newkk = pg.transform.rotozoom(mm[0], mm[1], 1.0)
         screen.blit(newkk, [kk_rct.x, kk_rct.y])

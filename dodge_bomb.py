@@ -2,6 +2,7 @@ import sys
 import pygame as pg
 import random
 import math
+import time
 
 WIDTH, HEIGHT = 1600, 900
 
@@ -13,16 +14,21 @@ def gamengai(rect):
 def main():
     font = pg.font.Font(None, 36)  # フォントを設定
     start_time = pg.time.get_ticks()  # ゲーム開始時刻を記録
-    font = pg.font.Font("japanese_font.ttf", 36)
     
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")
     kk_img = pg.image.load("fig/3.png")
     kk_img = pg.transform.rotozoom(kk_img, 0, 2.0)
+    over   = pg.image.load("fig/9.png")
+    over   = pg.transform.rotozoom(over, 0, 2.0)
     
+    pg.mixer.music.load("y2mate.com - LiSA 紅蓮華 MUSiC CLiP YouTube EDIT ver.mp3")
+    pg.mixer.music.play()
     
-    kk_rct = kk_img.get_rect()
+    kk_imgs = [kk_img, over]
+    kk_rct = kk_imgs[0].get_rect()
+    kk_rct1 = kk_imgs[1].get_rect()
     kk_rct.center = 900,400
     
     enn = pg.Surface((20, 20))
@@ -49,14 +55,14 @@ def main():
         pg.K_RIGHT: (+5, 0),
         }
     cos_zi = {
-        (0, 5): (pg.transform.flip(kk_img, True, False), -90),
-        (5, 5): (pg.transform.flip(kk_img, True, False), -45),
-        (5, 0): (pg.transform.flip(kk_img, True, False), 0),
-        (5, -5): (pg.transform.flip(kk_img, True, False), 45),
-        (0, -5): (pg.transform.flip(kk_img, True, False), 90),
-        (-5, 5): (kk_img, 45),
-        (-5, -5): (kk_img, -45),
-        (-5, 0): (kk_img, 0)
+        (0, 5): (pg.transform.flip(kk_imgs[0], True, False), -90),
+        (5, 5): (pg.transform.flip(kk_imgs[0], True, False), -45),
+        (5, 0): (pg.transform.flip(kk_imgs[0], True, False), 0),
+        (5, -5): (pg.transform.flip(kk_imgs[0], True, False), 45),
+        (0, -5): (pg.transform.flip(kk_imgs[0], True, False), 90),
+        (-5, 5): (kk_imgs[0], 45),
+        (-5, -5): (kk_imgs[0], -45),
+        (-5, 0): (kk_imgs[0], 0)
     }
     
     
@@ -112,7 +118,13 @@ def main():
         enn_img = enn_imgs[min(tmr//500, 9)] # 時間とともに爆弾を拡大
         screen.blit(enn_img, [enn_rct.x, enn_rct.y])
         
-        
+
+    # こうかとんと爆弾がぶつかったら終了
+        if kk_rct.colliderect(enn_rct):
+            
+            pg.time.delay(1000)  # 1秒間待機
+            return
+
         # 経過時間を計算（ミリ秒単位）
         elapsed_time = pg.time.get_ticks() - start_time
 
@@ -120,22 +132,17 @@ def main():
         seconds = elapsed_time // 1000
 
         # テキストを作成
-        time_text = f"タイム: {seconds} 秒"
-        
+        time_text = f"Time: {seconds} seconds"
+
         # テキストを描画
         text_surface = font.render(time_text, True, (0, 0, 0))
         screen.blit(text_surface, (10, 10))  # 位置を調整して描画
-          
-        # こうかとんと爆弾がぶつかったら終了  
-        if kk_rct.colliderect(enn_rct):
-            return
-        
+
         enn_rct.move_ip(avx, avy)
         pg.display.update()
         tmr += 1
         clock.tick(50)
-        
-        
+
 
         
 

@@ -11,6 +11,10 @@ def gamengai(rect):
     return xx, yy
 
 def main():
+    font = pg.font.Font(None, 36)  # フォントを設定
+    start_time = pg.time.get_ticks()  # ゲーム開始時刻を記録
+    font = pg.font.Font("japanese_font.ttf", 36)
+    
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")
@@ -55,6 +59,7 @@ def main():
         (-5, 0): (kk_img, 0)
     }
     
+    
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -91,25 +96,37 @@ def main():
             vx = -vx
         if not enn_in[1]:
             vy = -vy
-            
-        # 爆弾を時間とともに加速、拡大
-        """avx, avy = vx*accs[min(tmr//500, 9)], vy*accs[min(tmr//500, 9)]
-        enn_img = enn_imgs[min(tmr//500, 9)]
-        
-        screen.blit(enn_img, [enn_rct.x, enn_rct.y])"""
         
         # 爆弾がこうかとんに近づく
         kyori = (kk_rct.centerx-enn_rct.centerx, kk_rct.centery-enn_rct.centery) # 爆弾から見たベクトル
         norm = math.sqrt(kyori[0]**2 + kyori[1]**2) 
-        vctr =  (kyori[0]/norm*math.sqrt(50), kyori[1]/norm*math.sqrt(50)) # ベクトルを√50になるように正規化
         if norm < 500:
-            avx, avy = vx*accs[min(tmr//500, 9)], vy*accs[min(tmr//500, 9)] # 爆弾を加速していく
+        # 距離が500未満の場合、現在の方向に一定の慣性を持って進行し続ける
+            avx, avy = vx, vy  # 慣性を調整するための係数を調整
         else:
-            avx, avy = vctr[0]*0.75, vctr[1]*0.75 # 距離が500未満のとき慣性として前の方向に移動(*0.75はてきとー)
-
+        # 距離が500以上の場合、従来通りキャラクターを追跡する
+            vctr = (kyori[0] / norm * math.sqrt(50), kyori[1] / norm * math.sqrt(50)) # ベクトルを√50になるように正規化
+            avx, avy = vctr[0] * accs[min(tmr // 500, 9)], vctr[1] * accs[min(tmr // 500, 9)]
+            vx, vy = vctr[0], vctr[1]
+            
         enn_img = enn_imgs[min(tmr//500, 9)] # 時間とともに爆弾を拡大
         screen.blit(enn_img, [enn_rct.x, enn_rct.y])
-        # こうかとんと爆弾がぶつかったら終了
+        
+        
+        # 経過時間を計算（ミリ秒単位）
+        elapsed_time = pg.time.get_ticks() - start_time
+
+        # 経過時間を秒単位に変換
+        seconds = elapsed_time // 1000
+
+        # テキストを作成
+        time_text = f"タイム: {seconds} 秒"
+        
+        # テキストを描画
+        text_surface = font.render(time_text, True, (0, 0, 0))
+        screen.blit(text_surface, (10, 10))  # 位置を調整して描画
+          
+        # こうかとんと爆弾がぶつかったら終了  
         if kk_rct.colliderect(enn_rct):
             return
         
@@ -117,6 +134,8 @@ def main():
         pg.display.update()
         tmr += 1
         clock.tick(50)
+        
+        
 
         
 

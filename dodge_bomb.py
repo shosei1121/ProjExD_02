@@ -121,7 +121,6 @@ def main():
 
     # こうかとんと爆弾がぶつかったら終了
         if kk_rct.colliderect(enn_rct):
-            
             pg.time.delay(1000)  # 1秒間待機
             return
 
